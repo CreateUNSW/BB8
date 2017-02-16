@@ -32,30 +32,17 @@ void func_to_call(void)
 
   /* The processing sketch expects data as roll, pitch, heading */
   Serial.print(F("Orientation: "));
-  Serial.print((float)event.orientation.x);
+  Serial.print((float)event.orientation.x,4);
   Serial.print(F(" "));
-  Serial.print((float)event.orientation.y);
+  Serial.print((float)event.orientation.y,4);
   Serial.print(F(" "));
-  Serial.print((float)event.orientation.z);
-  Serial.print(F(" "));
-
-  /* Also send calibration data for each sensor. */
-  uint8_t sys, gyro, accel, mag = 0;
-  bno.getCalibration(&sys, &gyro, &accel, &mag);
-  Serial.print(F("Calibration: "));
-  Serial.print(sys, DEC);
-  Serial.print(F(" "));
-  Serial.print(gyro, DEC);
-  Serial.print(F(" "));
-  Serial.print(accel, DEC);
-  Serial.print(F(" "));
-  Serial.println(mag, DEC);
+  Serial.print((float)event.orientation.z,4);
+  Serial.println(F(" "));
 }
 
 void func() {
   call = true;
 }
-
 /**************************************************************************/
 /*
     Arduino setup function (automatically called at startup)

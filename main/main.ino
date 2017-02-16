@@ -27,8 +27,8 @@
 #define ROLL_D 1
 
 // PITCH PID
-#define PITCH_P 2
-#define PITCH_I 4
+#define PITCH_P 12
+#define PITCH_I 2
 #define PITCH_D 1
 
 //Define Variables we'll be connecting to
@@ -60,8 +60,9 @@ bool inputComplete = false;
 
 //call this every 100ms before any other func
 void funcStart( ) {
-  headBno.getEvent(&bodyEvent);
+  bodyBno.getEvent(&bodyEvent);
   headBno.getEvent(&headEvent);
+  Serial.print("test");
   if(inputComplete) {
     pitchSetpoint = input;
     input = 0;
@@ -71,19 +72,21 @@ void funcStart( ) {
 
 // call this after every other func
 void funcEnd() {
-  Serial.print("Forward Set Point> ");
-  Serial.println(pitchSetpoint);
+//  Serial.print("Pitch Set Point> ");
+//  Serial.println(pitchSetpoint);
 }
 
 void pitchCalc(void)
 {
 
   //NEED TO BE CHANGED ACCORDING TO ORIENTATION
-  pitchInput = bodyEvent.orientation.y;
+  pitchInput = (float)bodyEvent.orientation.y;
+  Serial.print("z: ");
+  Serial.print(pitchInput);
   pitchPID.Compute();
-  Serial.print("MAIN OUTPUT: ");
+  Serial.print(" MAIN OUTPUT: ");
   Serial.println(pitchOutput);
-  st_head_yaw.motor(PITCH_MOTOR,pitchOutput);
+  st_pitch_roll.motor(PITCH_MOTOR,pitchOutput);
 }
 
 void rollCalc(void) {
@@ -92,7 +95,7 @@ void rollCalc(void) {
   rollPID.Compute();
   Serial.print("SIDE OUTPUT: ");
   Serial.println(rollOutput);
-  st_pitch_roll.motor(ROLL_MOTOR,rollOutput);
+//  st_pitch_roll.motor(ROLL_MOTOR,rollOutput);
 }
 
 void Interrupt() {
@@ -110,22 +113,23 @@ void setup(void)
   Serial.begin(9600);
   Serial.println("Orientation Sensor Test"); Serial.println("");
 
-  if(!headBno.begin())
-  {
-    /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no MAIN BNO detected ... Check your wiring or I2C ADDR!");
-    while(1);
-  }
 //  if(!headBno.begin())
 //  {
 //    /* There was a problem detecting the BNO055 ... check your connections */
-//    Serial.print("Ooops, no HEAD BNO detected ... Check your wiring or I2C ADDR!");
+//    Serial.print("Ooops, no MAIN BNO detected ... Check your wiring or I2C ADDR!");
 //    while(1);
 //  }
+  if(!bodyBno.begin())
+  {
+    /* There was a problem detecting the BNO055 ... check your connections */
+    Serial.print("Ooops, no BODY BNO detected ... Check your wiring or I2C ADDR!");
+    while(1);
+  }
 
 
+  pitchPID.SetOutputLimits(-127,127);
   pitchPID.SetMode(AUTOMATIC);
-  rollPID.SetMode(AUTOMATIC);
+//  rollPID.SetMode(AUTOMATIC);
   Timer1.initialize(100000);
   Timer1.attachInterrupt(Interrupt);
 }
@@ -135,7 +139,7 @@ void loop() {
   if(call) {
     funcStart();
      pitchCalc();
-     rollCalc();
+//     rollCalc();
     funcEnd();
     call = false;
   }
