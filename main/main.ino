@@ -1,4 +1,3 @@
-#include <Wire.h>
 #include <PID_v1.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
@@ -6,6 +5,19 @@
 #include <TimerOne.h>
 #include <SoftwareSerial.h>
 #include <SabertoothSimplified.h>
+
+#define CH1 20
+#define CH2 21
+#define CH3 18
+#define CH4 19
+#define CH5 2
+#define CH6 3
+
+// CH1 right up-down
+
+int ch1_value = 0, ch2_value = 0, ch3_value = 0, ch4_value = 0, ch5_value = 0, ch6_value = 0;
+bool ch1_ready = false, ch2_ready = false, ch3_ready = false, ch4_ready = false, ch5_ready = false, ch6_ready = false;
+int ch1_value_start, ch2_value_start, ch3_value_start, ch4_value_start, ch5_value_start, ch6_value_start;
 
 //PINS and addresses
 #define ST_PITCH_ROLL_PIN 11
@@ -36,9 +48,9 @@ double rollSetpoint = 0,rollInput,rollOutput;
 double pitchSetpoint = 0,pitchInput,pitchOutput;
 
 //everything for Sabre tooth
-SoftwareSerial Pin1(NOT_A_PIN, ST_PITCH_ROLL_PIN); // RX on no pin (unused), TX on pin 11 (to S1).
-SoftwareSerial Pin2(NOT_A_PIN, ST_HEAD_YAW_PIN); // RX on no pin (unused), TX on pin 11 (to S1).
+SoftwareSerial Pin1(NOT_A_PIN, 11); // RX on no pin (unused), TX on pin 11 (to S1).
 SabertoothSimplified st_pitch_roll(Pin1); // Use SWSerial as the serial port.
+SoftwareSerial Pin2(NOT_A_PIN, ST_HEAD_YAW_PIN); // RX on no pin (unused), TX on pin 11 (to S1).
 SabertoothSimplified st_head_yaw(Pin2); // Use SWSerial as the serial port.
 
 //PID
@@ -62,7 +74,6 @@ bool inputComplete = false;
 void funcStart( ) {
   bodyBno.getEvent(&bodyEvent);
   headBno.getEvent(&headEvent);
-  Serial.print("test");
   if(inputComplete) {
     pitchSetpoint = input;
     input = 0;
@@ -72,8 +83,8 @@ void funcStart( ) {
 
 // call this after every other func
 void funcEnd() {
-//  Serial.print("Pitch Set Point> ");
-//  Serial.println(pitchSetpoint);
+  Serial.print(" > ");
+  Serial.println(pitchSetpoint);
 }
 
 void pitchCalc(void)
@@ -81,11 +92,11 @@ void pitchCalc(void)
 
   //NEED TO BE CHANGED ACCORDING TO ORIENTATION
   pitchInput = (float)bodyEvent.orientation.y;
-  Serial.print("z: ");
   Serial.print(pitchInput);
+  Serial.print(" ");
   pitchPID.Compute();
-  Serial.print(" MAIN OUTPUT: ");
-  Serial.println(pitchOutput);
+  Serial.print(pitchOutput);
+  Serial.print(" ");
   st_pitch_roll.motor(PITCH_MOTOR,pitchOutput);
 }
 
@@ -95,7 +106,7 @@ void rollCalc(void) {
   rollPID.Compute();
   Serial.print("SIDE OUTPUT: ");
   Serial.println(rollOutput);
-//  st_pitch_roll.motor(ROLL_MOTOR,rollOutput);
+  st_pitch_roll.motor(ROLL_MOTOR,rollOutput);
 }
 
 void Interrupt() {
@@ -109,7 +120,22 @@ void Interrupt() {
 /**************************************************************************/
 void setup(void)
 {
+  pinMode(CH1,INPUT);
+  pinMode(CH2,INPUT);
+  pinMode(CH3,INPUT);
+  pinMode(CH4,INPUT);
+  pinMode(CH5,INPUT);
+  pinMode(CH6,INPUT);
 
+ attachInterrupt(digitalPinToInterrupt(CH1),ch1_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH2),ch2_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH3),ch3_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH4),ch4_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH5),ch5_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH6),ch6_handler,CHANGE);
+
+  Pin1.begin(9600);
+  Pin2.begin(9600);
   Serial.begin(9600);
   Serial.println("Orientation Sensor Test"); Serial.println("");
 
@@ -126,7 +152,6 @@ void setup(void)
     while(1);
   }
 
-
   pitchPID.SetOutputLimits(-127,127);
   pitchPID.SetMode(AUTOMATIC);
 //  rollPID.SetMode(AUTOMATIC);
@@ -136,10 +161,11 @@ void setup(void)
 
 
 void loop() {
+  
   if(call) {
     funcStart();
-     pitchCalc();
-//     rollCalc();
+    pitchCalc();
+//    rollCalc();
     funcEnd();
     call = false;
   }
@@ -155,5 +181,74 @@ void serialEvent() {
       int digit = inChar - '0';
       input = input*10 + digit;
     }
+  }
+}
+
+void ch1_handler() {
+  if(digitalRead(CH1) == HIGH)
+  {
+    ch1_value_start = micros();
+  }
+  else
+  {
+    ch1_value = (uint16_t)(micros() - ch1_value_start);
+    ch1_ready = true;
+  }
+}
+
+void ch2_handler() {
+  if(digitalRead(CH2) == HIGH)
+  {
+    ch2_value_start = micros();
+  }
+  else
+  {
+    ch2_value = (uint16_t)(micros() - ch2_value_start);
+    ch2_ready = true;
+  }
+}
+void ch3_handler() {
+  if(digitalRead(CH3) == HIGH)
+  {
+    ch3_value_start = micros();
+  }
+  else
+  {
+    ch3_value = (uint16_t)(micros() - ch3_value_start);
+    pitchSetpoint = ( ch3_value - 1500 ) / 5 ;
+    ch3_ready = true;
+  }
+}
+void ch4_handler() {
+  if(digitalRead(CH4) == HIGH)
+  {
+    ch4_value_start = micros();
+  }
+  else
+  {
+    ch4_value = (uint16_t)(micros() - ch4_value_start);
+    ch4_ready = true;
+  }
+}
+void ch5_handler() {
+  if(digitalRead(CH5) == HIGH)
+  {
+    ch5_value_start = micros();
+  }
+  else
+  {
+    ch5_value = (uint16_t)(micros() - ch5_value_start);
+    ch5_ready = true;
+  }
+}
+void ch6_handler() {
+  if(digitalRead(CH6) == HIGH)
+  {
+    ch6_value_start = micros();
+  }
+  else
+  {
+    ch6_value = (uint16_t)(micros() - ch6_value_start);
+    ch6_ready = true;
   }
 }
