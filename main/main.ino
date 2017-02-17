@@ -1,4 +1,3 @@
-
 #include <Servo.h>
 #include <PID_v1.h>
 #include <Adafruit_Sensor.h>
@@ -28,8 +27,8 @@ int ch1_value_start, ch2_value_start, ch3_value_start, ch4_value_start, ch5_valu
 #define SERVO_PITCH 9
 #define SERVO_ROLL 10
 
-#define BNO_BODY 0x29
-#define BNO_HEAD 0x28
+#define BNO_BODY 0x28
+#define BNO_HEAD 0x29
 
 // motor ids
 #define PITCH_MOTOR 1
@@ -49,9 +48,9 @@ int ch1_value_start, ch2_value_start, ch3_value_start, ch4_value_start, ch5_valu
 #define PITCH_D 1
 
 // ROLL PID
-#define HEAD_ROLL_P 2
-#define HEAD_ROLL_I 5
-#define HEAD_ROLL_D 1
+#define HEAD_ROLL_P 0.4
+#define HEAD_ROLL_I 0
+#define HEAD_ROLL_D 0
 
 // PITCH PID
 #define HEAD_PITCH_P 12
@@ -81,7 +80,7 @@ PID pitchPID(&pitchInput, &pitchOutput, &pitchSetpoint, PITCH_P, PITCH_I, PITCH_
 
 //head PIDs
 PID headRollPID(&headRollInput, &headRollOutput, &headRollSetpoint, HEAD_ROLL_P, HEAD_ROLL_I, HEAD_ROLL_D, DIRECT);
-PID headPitchPID(&headPitchInput, &headPitchOutput, &headPitchSetpoint, HEAD_PITCH_P, HEAD_PITCH_I, PITCH_D, DIRECT);
+PID headPitchPID(&headPitchInput, &headPitchOutput, &headPitchSetpoint, HEAD_PITCH_P, HEAD_PITCH_I, HEAD_PITCH_D, DIRECT);
 PID headYawPID(&headYawInput, &headYawOutput, &headYawSetpoint, HEAD_YAW_P, HEAD_YAW_I, HEAD_YAW_D, DIRECT);
 
 //everything for Sabre tooth
@@ -140,8 +139,12 @@ void headPitchCalc(void)
 
 void headRollCalc(void) {
   //NEED TO BE CHANGED ACCORDING TO ORIENTATION
-  headRollInput = (float)headEvent.orientation.x;
+  headRollInput = -(float)headEvent.orientation.x;
+  Serial.print(headRollInput);
+  Serial.print(" ");
   headRollPID.Compute();
+  Serial.print(headRollOutput);
+  Serial.print(" ");
   s_roll.write(headRollOutput);
   
 }
@@ -171,10 +174,10 @@ void setup(void)
   pinMode(CH5,INPUT);
   pinMode(CH6,INPUT);
 
- attachInterrupt(digitalPinToInterrupt(CH1),ch1_handler,CHANGE);
- attachInterrupt(digitalPinToInterrupt(CH2),ch2_handler,CHANGE);
- attachInterrupt(digitalPinToInterrupt(CH3),ch3_handler,CHANGE);
- attachInterrupt(digitalPinToInterrupt(CH4),ch4_handler,CHANGE);
+// attachInterrupt(digitalPinToInterrupt(CH1),ch1_handler,CHANGE);
+// attachInterrupt(digitalPinToInterrupt(CH2),ch2_handler,CHANGE);
+// attachInterrupt(digitalPinToInterrupt(CH3),ch3_handler,CHANGE);
+// attachInterrupt(digitalPinToInterrupt(CH4),ch4_handler,CHANGE);
 // attachInterrupt(digitalPinToInterrupt(CH5),ch5_handler,CHANGE);
 // attachInterrupt(digitalPinToInterrupt(CH6),ch6_handler,CHANGE);
 
@@ -190,14 +193,12 @@ void setup(void)
   if(!headBno.begin())
   {
     /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no MAIN BNO detected ... Check your wiring or I2C ADDR!");
-    while(1);
+    Serial.print("Ooops, no HEAD BNO detected ... Check your wiring or I2C ADDR!");
   }
   if(!bodyBno.begin())
   {
     /* There was a problem detecting the BNO055 ... check your connections */
     Serial.print("Ooops, no BODY BNO detected ... Check your wiring or I2C ADDR!");
-    while(1);
   }
 
   pitchPID.SetOutputLimits(-127,127);
@@ -207,9 +208,9 @@ void setup(void)
   headPitchPID.SetOutputLimits(0,180);
   headRollPID.SetOutputLimits(0,180);
 
-  pitchPID.SetMode(AUTOMATIC);
+//  pitchPID.SetMode(AUTOMATIC);
 //  rollPID.SetMode(AUTOMATIC);
-//  headRollPID.SetMode(AUTOMATIC);
+  headRollPID.SetMode(AUTOMATIC);
 //  headPitchPID.SetMode(AUTOMATIC);
 //  headYawPID.SetMode(AUTOMATIC);
   Timer1.initialize(100000);
@@ -221,10 +222,10 @@ void loop() {
 
   if(call) {
     funcStart();
-    pitchCalc();
+//    pitchCalc();
 //    rollCalc();
 //    headPitchCalc();
-//    headRollCalc();
+    headRollCalc();
 //    headYawCalc();
     funcEnd();
   }
