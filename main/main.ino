@@ -7,6 +7,7 @@
 #include <SoftwareSerial.h>
 #include <SabertoothSimplified.h>
 
+//RC channels
 #define CH1 2
 #define CH2 3
 #define CH3 18
@@ -84,7 +85,7 @@ PID headPitchPID(&headPitchInput, &headPitchOutput, &headPitchSetpoint, HEAD_PIT
 PID headYawPID(&headYawInput, &headYawOutput, &headYawSetpoint, HEAD_YAW_P, HEAD_YAW_I, HEAD_YAW_D, DIRECT);
 
 //everything for Sabre tooth
-SoftwareSerial Pin1(NOT_A_PIN, 11); // RX on no pin (unused), TX on pin 11 (to S1).
+SoftwareSerial Pin1(NOT_A_PIN, ST_PITCH_ROLL_PIN); // RX on no pin (unused), TX on pin 11 (to S1).
 SabertoothSimplified st_pitch_roll(Pin1); // Use SWSerial as the serial port.
 SoftwareSerial Pin2(NOT_A_PIN, ST_HEAD_YAW_PIN); // RX on no pin (unused), TX on pin 11 (to S1).
 SabertoothSimplified st_head_yaw(Pin2); // Use SWSerial as the serial port.
@@ -174,12 +175,12 @@ void setup(void)
   pinMode(CH5,INPUT);
   pinMode(CH6,INPUT);
 
-// attachInterrupt(digitalPinToInterrupt(CH1),ch1_handler,CHANGE);
-// attachInterrupt(digitalPinToInterrupt(CH2),ch2_handler,CHANGE);
-// attachInterrupt(digitalPinToInterrupt(CH3),ch3_handler,CHANGE);
-// attachInterrupt(digitalPinToInterrupt(CH4),ch4_handler,CHANGE);
-// attachInterrupt(digitalPinToInterrupt(CH5),ch5_handler,CHANGE);
-// attachInterrupt(digitalPinToInterrupt(CH6),ch6_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH1),ch1_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH2),ch2_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH3),ch3_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH4),ch4_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH5),ch5_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH6),ch6_handler,CHANGE);
 
   Pin1.begin(9600);
   Pin2.begin(9600);
