@@ -19,14 +19,15 @@
 
 int ch1_value = 0, ch2_value = 0, ch3_value = 0, ch4_value = 0, ch5_value = 0, ch6_value = 0;
 bool ch1_ready = false, ch2_ready = false, ch3_ready = false, ch4_ready = false, ch5_ready = false, ch6_ready = false;
-int ch1_value_start, ch2_value_start, ch3_value_start, ch4_value_start, ch5_value_start, ch6_value_start;
+int ch1_value_start, ch2_value_start, ch3_va
+le_start, ch4_value_start, ch5_value_start, ch6_value_start;
 
 //PINS and addresses
 #define ST_PITCH_ROLL_PIN 11
 #define ST_HEAD_YAW_PIN 12
 
-#define SERVO_PITCH 9
-#define SERVO_ROLL 10
+#define SERVO_PITCH 10
+#define SERVO_ROLL 9
 
 #define BNO_BODY 0x28
 #define BNO_HEAD 0x29
