@@ -8,19 +8,18 @@
 #include <SabertoothSimplified.h>
 
 //RC channels
-#define CH1 2
-#define CH2 3
-#define CH3 18
-#define CH4 19
+#define CH1 18
+#define CH2 19
+#define CH3 2
+#define CH4 3
 #define CH5 20
 #define CH6 21
 
 // CH1 right up-down
 
-int ch1_value = 0, ch2_value = 0, ch3_value = 0, ch4_value = 0, ch5_value = 0, ch6_value = 0;
+int ch1_value = 1500, ch2_value = 1500, ch3_value = 1500, ch4_value = 1500, ch5_value = 1500, ch6_value = 1500;
 bool ch1_ready = false, ch2_ready = false, ch3_ready = false, ch4_ready = false, ch5_ready = false, ch6_ready = false;
-int ch1_value_start, ch2_value_start, ch3_va
-le_start, ch4_value_start, ch5_value_start, ch6_value_start;
+int ch1_value_start, ch2_value_start, ch3_value_start, ch4_value_start, ch5_value_start, ch6_value_start;
 
 //PINS and addresses
 #define ST_PITCH_ROLL_PIN 11
@@ -176,9 +175,9 @@ void setup(void)
   pinMode(CH5,INPUT);
   pinMode(CH6,INPUT);
 
-// attachInterrupt(digitalPinToInterrupt(CH1),ch1_handler,CHANGE);
-// attachInterrupt(digitalPinToInterrupt(CH2),ch2_handler,CHANGE);
-// attachInterrupt(digitalPinToInterrupt(CH3),ch3_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH1),ch1_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH2),ch2_handler,CHANGE);
+ attachInterrupt(digitalPinToInterrupt(CH3),ch3_handler,CHANGE);
 // attachInterrupt(digitalPinToInterrupt(CH4),ch4_handler,CHANGE);
 // attachInterrupt(digitalPinToInterrupt(CH5),ch5_handler,CHANGE);
 // attachInterrupt(digitalPinToInterrupt(CH6),ch6_handler,CHANGE);
@@ -189,47 +188,65 @@ void setup(void)
   Serial.begin(9600);
   Serial.println("Starting..."); Serial.println("");
 
-  s_roll.attach(SERVO_ROLL);
-  s_pitch.attach(SERVO_PITCH);
+//  s_roll.attach(SERVO_ROLL);
+//  s_pitch.attach(SERVO_PITCH);
 
-  if(!headBno.begin())
-  {
-    /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no HEAD BNO detected ... Check your wiring or I2C ADDR!");
-  }
-  if(!bodyBno.begin())
-  {
-    /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BODY BNO detected ... Check your wiring or I2C ADDR!");
-  }
+//  if(!headBno.begin())
+//  {
+//    /* There was a problem detecting the BNO055 ... check your connections */
+//    Serial.print("Ooops, no HEAD BNO detected ... Check your wiring or I2C ADDR!");
+//  }
+//  if(!bodyBno.begin())
+//  {
+//    /* There was a problem detecting the BNO055 ... check your connections */
+//    Serial.print("Ooops, no BODY BNO detected ... Check your wiring or I2C ADDR!");
+//  }
 
-  pitchPID.SetOutputLimits(-127,127);
-  rollPID.SetOutputLimits(-127,127);
-  headYawPID.SetOutputLimits(-127,127);
+//  pitchPID.SetOutputLimits(-127,127);
+//  rollPID.SetOutputLimits(-127,127);
+//  headYawPID.SetOutputLimits(-127,127);
+//
+//  headPitchPID.SetOutputLimits(0,180);
+//  headRollPID.SetOutputLimits(0,180);
 
-  headPitchPID.SetOutputLimits(0,180);
-  headRollPID.SetOutputLimits(0,180);
-
-  pitchPID.SetMode(AUTOMATIC);
-  rollPID.SetMode(AUTOMATIC);
-//  headRollPID.SetMode(AUTOMATIC);
-//  headPitchPID.SetMode(AUTOMATIC);
-//  headYawPID.SetMode(AUTOMATIC);
-  Timer1.initialize(100000);
-  Timer1.attachInterrupt(Interrupt);
+//  pitchPID.SetMode(AUTOMATIC);
+//  rollPID.SetMode(AUTOMATIC);
+////  headRollPID.SetMode(AUTOMATIC);
+////  headPitchPID.SetMode(AUTOMATIC);
+////  headYawPID.SetMode(AUTOMATIC);
+//  Timer1.initialize(100000);
+//  Timer1.attachInterrupt(Interrupt);
 }
 
 
 void loop() {
 
+  
+  Serial.print(map(ch1_value,1000,2000,-120,120));
+  Serial.print(" ");
+  Serial.print(map(ch2_value,1000,2000,-120,120));
+  Serial.print(" ");
+  Serial.print(map(ch3_value,1000,2000,-120,120));
+  Serial.print(" ");
+  Serial.print(map(ch4_value,1000,2000,-120,120));
+  Serial.print(" ");
+  Serial.print(ch5_value);
+  Serial.print(" ");
+  Serial.print(ch6_value);
+  Serial.println(" ");
+  delay(100);
+  st_pitch_roll.motor(1,map(ch1_value,1000,2000,-120,120));
+  
+  st_head_yaw.motor(2,map(ch2_value,1000,2000,-120,120));
+  st_head_yaw.motor(1,map(ch3_value,1000,2000,-120,120));
   if(call) {
-    funcStart();
-    pitchCalc();
-    rollCalc();
+//    funcStart();
+//    pitchCalc();
+//    rollCalc();
 //    headPitchCalc();
 //    headRollCalc();
 //    headYawCalc();
-    funcEnd();
+//    funcEnd();
   }
 }
 
@@ -245,8 +262,6 @@ void loop() {
 //    }
 //  }
 //}
-
-//RF channel handlers
 void ch1_handler() {
   if(digitalRead(CH1) == HIGH)
   {
@@ -278,7 +293,6 @@ void ch3_handler() {
   else
   {
     ch3_value = (uint16_t)(micros() - ch3_value_start);
-    pitchSetpoint = ( ch3_value - 1500 ) / 5 ;
     ch3_ready = true;
   }
 }
@@ -293,6 +307,7 @@ void ch4_handler() {
     ch4_ready = true;
   }
 }
+
 void ch5_handler() {
   if(digitalRead(CH5) == HIGH)
   {

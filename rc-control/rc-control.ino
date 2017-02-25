@@ -1,9 +1,9 @@
-#define CH1 20
-#define CH2 21
-#define CH3 18
-#define CH4 19
-#define CH5 2
-#define CH6 3
+#define CH1 18
+#define CH2 19
+#define CH3 2
+#define CH4 3
+#define CH5 20
+#define CH6 21
 
 // CH1 right up-down
 
