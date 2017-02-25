@@ -176,10 +176,10 @@ void setup(void)
   pinMode(CH5,INPUT);
   pinMode(CH6,INPUT);
 
- attachInterrupt(digitalPinToInterrupt(CH1),ch1_handler,CHANGE);
- attachInterrupt(digitalPinToInterrupt(CH2),ch2_handler,CHANGE);
- attachInterrupt(digitalPinToInterrupt(CH3),ch3_handler,CHANGE);
- attachInterrupt(digitalPinToInterrupt(CH4),ch4_handler,CHANGE);
+// attachInterrupt(digitalPinToInterrupt(CH1),ch1_handler,CHANGE);
+// attachInterrupt(digitalPinToInterrupt(CH2),ch2_handler,CHANGE);
+// attachInterrupt(digitalPinToInterrupt(CH3),ch3_handler,CHANGE);
+// attachInterrupt(digitalPinToInterrupt(CH4),ch4_handler,CHANGE);
 // attachInterrupt(digitalPinToInterrupt(CH5),ch5_handler,CHANGE);
 // attachInterrupt(digitalPinToInterrupt(CH6),ch6_handler,CHANGE);
 
