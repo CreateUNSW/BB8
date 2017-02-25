@@ -180,8 +180,8 @@ void setup(void)
  attachInterrupt(digitalPinToInterrupt(CH2),ch2_handler,CHANGE);
  attachInterrupt(digitalPinToInterrupt(CH3),ch3_handler,CHANGE);
  attachInterrupt(digitalPinToInterrupt(CH4),ch4_handler,CHANGE);
- attachInterrupt(digitalPinToInterrupt(CH5),ch5_handler,CHANGE);
- attachInterrupt(digitalPinToInterrupt(CH6),ch6_handler,CHANGE);
+// attachInterrupt(digitalPinToInterrupt(CH5),ch5_handler,CHANGE);
+// attachInterrupt(digitalPinToInterrupt(CH6),ch6_handler,CHANGE);
 
   Pin1.begin(9600);
   Pin2.begin(9600);
@@ -210,9 +210,9 @@ void setup(void)
   headPitchPID.SetOutputLimits(0,180);
   headRollPID.SetOutputLimits(0,180);
 
-//  pitchPID.SetMode(AUTOMATIC);
-//  rollPID.SetMode(AUTOMATIC);
-  headRollPID.SetMode(AUTOMATIC);
+  pitchPID.SetMode(AUTOMATIC);
+  rollPID.SetMode(AUTOMATIC);
+//  headRollPID.SetMode(AUTOMATIC);
 //  headPitchPID.SetMode(AUTOMATIC);
 //  headYawPID.SetMode(AUTOMATIC);
   Timer1.initialize(100000);
@@ -224,10 +224,10 @@ void loop() {
 
   if(call) {
     funcStart();
-//    pitchCalc();
-//    rollCalc();
+    pitchCalc();
+    rollCalc();
 //    headPitchCalc();
-    headRollCalc();
+//    headRollCalc();
 //    headYawCalc();
     funcEnd();
   }
