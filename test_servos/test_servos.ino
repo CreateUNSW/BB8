@@ -5,10 +5,10 @@ Servo s_roll, s_pitch;
 bool inputComplete = false;
 int input = 0;
 
-#define SERVO_PITCH 10
-#define SERVO_ROLL 9
+#define SERVO_PITCH 9
+#define SERVO_ROLL 10
 
-int current = 35;
+int current = 90;
 
 void s_roll_wrapper(int _input) {
   int diff = _input - current;
@@ -16,26 +16,13 @@ void s_roll_wrapper(int _input) {
     return; 
   }
   int inc = diff < 0 ? -1 : 1 ;
-  for(int i = current; i != _input; i += inc) {
-     Serial.print(i);
-     Serial.print(" ");
+  int i;
+  for( i = current; i != _input; i += inc) {
     s_roll.write(i);
     delay(50); 
   }
-//  if(diff < 0) {
-//    for(int i = current; i >= _input; i--) {
-//      Serial.print(i);
-//      Serial.print(" ");
-//      s_roll.write(i);
-//      delay(100);
-//    }
-//  } else {
-//    for(int i = current; i <= _input; i++) {
-//      s_roll.write(i);
-//      delay(20);
-//    }
-//    
-//  }
+  s_roll.write(i);
+  delay(50); 
   current = _input;
 }
 
@@ -45,6 +32,7 @@ void setup() {
   s_roll.attach(SERVO_ROLL);
   s_pitch.attach(SERVO_PITCH);
   s_roll.write(current);
+  s_pitch.write(current);
   Serial.begin(9600);
 }
 
